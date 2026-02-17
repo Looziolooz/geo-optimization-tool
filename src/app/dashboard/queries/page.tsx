@@ -12,7 +12,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { useAIQuery } from '@/hooks/useAIQuery';
-import { AIProviderName } from '@/lib/types';
+import { AIProviderName, ProviderQueryResult } from '@/lib/types';
 import { cn, getSentimentBg } from '@/lib/utils/helpers';
 
 const PROVIDERS: { name: AIProviderName; label: string; color: string }[] = [
@@ -37,15 +37,24 @@ export default function QueriesPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!query.trim() || !brandName.trim() || isLoading) return;
-    await executeQuery(
-      query.trim(),
-      brandName.trim(),
-      selectedProviders.length > 0 ? selectedProviders : undefined
-    );
+    
+    await executeQuery(query.trim(), {
+      brandId: 'manual-query', 
+      brandName: brandName.trim(),
+    }, selectedProviders.length > 0 ? selectedProviders : undefined);
   };
 
+  // Calcolo dati derivati per la UI basati sull'interfaccia QueryResult reale
+  const totalMentions = result?.providerResults.reduce(
+    (sum, pr) => sum + (pr.brandAnalysis.mentionCount || 0), 0
+  ) || 0;
+
+  const isBrandMentioned = result?.providerResults.some(
+    (pr) => pr.brandAnalysis.mentioned
+  ) || false;
+
   return (
-    <div className="max-w-[900px] mx-auto space-y-8 animate-fade-in">
+    <div className="max-w-225 mx-auto space-y-8 animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold text-white tracking-tight">Query AI</h1>
         <p className="text-surface-400 text-sm mt-1">
@@ -139,16 +148,16 @@ export default function QueriesPage() {
                 <p className="text-surface-500 text-xs mt-1">Visibility Score</p>
               </div>
               <div className="text-center p-3 rounded-xl bg-surface-800/30">
-                <p className="text-3xl font-bold text-white">{result.totalMentions}</p>
+                <p className="text-3xl font-bold text-white">{totalMentions}</p>
                 <p className="text-surface-500 text-xs mt-1">Menzioni</p>
               </div>
               <div className="text-center p-3 rounded-xl bg-surface-800/30">
-                <p className="text-3xl font-bold text-white">{result.providersQueried}</p>
+                <p className="text-3xl font-bold text-white">{result.providerResults.length}</p>
                 <p className="text-surface-500 text-xs mt-1">Provider</p>
               </div>
               <div className="text-center p-3 rounded-xl bg-surface-800/30">
                 <p className="text-3xl font-bold text-white">
-                  {result.brandMentioned ? '✓' : '✗'}
+                  {isBrandMentioned ? '✓' : '✗'}
                 </p>
                 <p className="text-surface-500 text-xs mt-1">Brand Trovato</p>
               </div>
@@ -156,7 +165,7 @@ export default function QueriesPage() {
           </div>
 
           <div className="space-y-3">
-            {result.responses.map((response, i) => (
+            {result.providerResults.map((pr: ProviderQueryResult, i: number) => (
               <div
                 key={i}
                 className="bg-surface-900/50 backdrop-blur-sm border border-surface-800/50 rounded-2xl overflow-hidden"
@@ -166,25 +175,25 @@ export default function QueriesPage() {
                   className="w-full flex items-center justify-between p-5 text-left hover:bg-surface-800/20 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    {response.brandAnalysis.mentioned ? (
+                    {pr.brandAnalysis.mentioned ? (
                       <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                     ) : (
                       <XCircle className="w-5 h-5 text-surface-500" />
                     )}
                     <div>
                       <span className="text-white font-medium">
-                        {response.provider.replace('openrouter-', '').replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                        {pr.provider.replace('openrouter-', '').replace('-', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
                       </span>
-                      <span className="text-surface-500 text-xs ml-3">{response.responseTimeMs}ms</span>
+                      <span className="text-surface-500 text-xs ml-3">{pr.responseTimeMs}ms</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={cn('text-xs px-2 py-0.5 rounded-full border', getSentimentBg(response.brandAnalysis.sentiment))}>
-                      {response.brandAnalysis.sentiment}
+                    <span className={cn('text-xs px-2 py-0.5 rounded-full border', getSentimentBg(pr.brandAnalysis.sentiment))}>
+                      {pr.brandAnalysis.sentiment}
                     </span>
-                    {response.brandAnalysis.mentioned && (
+                    {pr.brandAnalysis.mentioned && (
                       <span className="text-emerald-400 text-xs font-medium">
-                        {response.brandAnalysis.mentionCount}x menzioni
+                        {pr.brandAnalysis.mentionCount}x menzioni
                       </span>
                     )}
                     {expandedResponse === i ? (
@@ -196,17 +205,17 @@ export default function QueriesPage() {
                 </button>
                 {expandedResponse === i && (
                   <div className="px-5 pb-5 border-t border-surface-800/30 pt-4 animate-fade-in">
-                    {response.error ? (
-                      <p className="text-red-400 text-sm">{response.error}</p>
+                    {pr.error ? (
+                      <p className="text-red-400 text-sm">{pr.error}</p>
                     ) : (
                       <p className="text-surface-300 text-sm leading-relaxed whitespace-pre-wrap">
-                        {response.content}
+                        {pr.content}
                       </p>
                     )}
-                    {response.brandAnalysis.excerpts.length > 0 && (
+                    {pr.brandAnalysis.excerpts.length > 0 && (
                       <div className="mt-4 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
                         <p className="text-emerald-400 text-xs font-medium mb-2">Estratti con menzione del brand:</p>
-                        {response.brandAnalysis.excerpts.map((excerpt, j) => (
+                        {pr.brandAnalysis.excerpts.map((excerpt, j) => (
                           <p key={j} className="text-surface-300 text-sm italic mb-1">&ldquo;{excerpt}&rdquo;</p>
                         ))}
                       </div>
