@@ -4,7 +4,7 @@ import { useState, FormEvent } from 'react';
 import { Search, Loader2, AlertCircle, CheckCircle2, XCircle, ChevronDown, ChevronUp, Zap, Globe, TrendingUp, Users } from 'lucide-react';
 import { useAIQuery } from '@/hooks/useAIQuery';
 import { useBrandStore } from '@/lib/store/brand-store';
-import { AIProviderName, AI_PROVIDERS, INDUSTRIES, QueryResult } from '@/lib/types';
+import { AIProviderName, AI_PROVIDERS, INDUSTRIES, QueryResult, ProviderQueryResult } from '@/lib/types';
 import { cn, sentimentBg, scoreColor } from '@/lib/utils';
 import ScoreRing from '@/components/ui/ScoreRing';
 import Link from 'next/link';
@@ -44,7 +44,7 @@ export default function QueriesPage() {
 
   if (brands.length === 0) {
     return (
-      <div className="max-w-[500px] mx-auto text-center py-24 animate-fade-in">
+      <div className="max-w-125 mx-auto text-center py-24 animate-fade-in">
         <Search className="w-12 h-12 text-surface-600 mx-auto mb-4" />
         <h2 className="text-xl font-bold text-white mb-2">Add a brand first</h2>
         <p className="text-surface-400 text-sm mb-6">You need at least one brand to run AI queries.</p>
@@ -54,7 +54,7 @@ export default function QueriesPage() {
   }
 
   return (
-    <div className="max-w-[1000px] mx-auto space-y-6 animate-fade-in">
+    <div className="max-w-250 mx-auto space-y-6 animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold text-white">AI Query Analysis</h1>
         <p className="text-surface-400 text-sm mt-1">Test your brand's visibility across AI search engines</p>
@@ -95,7 +95,7 @@ export default function QueriesPage() {
           <div>
             <label className="text-surface-400 text-xs font-medium mb-1 block">Query</label>
             <textarea value={query} onChange={(e) => setQuery(e.target.value)} rows={2}
-              placeholder={market === 'se' ? 'e.g. "Vilka är de bästa verktygen för..."' : 'e.g. "What are the best tools for..."'}
+              placeholder={market === 'se' ? 'e.g. "Vilka è de bästa verktygen för..."' : 'e.g. "What are the best tools for..."'}
               className="w-full bg-surface-800/50 border border-surface-700/50 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-surface-500 focus:outline-none focus:border-brand-500/50 resize-none" />
             {suggestedQueries && (
               <div className="flex flex-wrap gap-2 mt-2">
@@ -152,7 +152,7 @@ export default function QueriesPage() {
             </div>
             <div className="mt-4 flex items-center gap-6 text-sm">
               <span className="text-surface-400"><Globe className="w-4 h-4 inline mr-1" />{result.market === 'se' ? '🇸🇪 Swedish' : '🌍 International'}</span>
-              <span className="text-surface-400"><Cpu className="w-4 h-4 inline mr-1" />{result.providerResults.length} providers</span>
+              <span className="text-surface-400"><CpuIcon className="w-4 h-4 inline mr-1" />{result.providerResults.length} providers</span>
               <span className={cn(scoreColor(result.visibilityScore), 'font-semibold')}>
                 {result.visibilityScore >= 60 ? '✓ Good visibility' : result.visibilityScore >= 30 ? '⚠ Needs improvement' : '✗ Low visibility'}
               </span>
@@ -161,7 +161,7 @@ export default function QueriesPage() {
 
           {/* Per-provider results */}
           <div className="space-y-3">
-            {result.providerResults.map((pr, i) => (
+            {result.providerResults.map((pr: ProviderQueryResult, i: number) => (
               <div key={i} className="bg-surface-900/50 border border-surface-800/50 rounded-2xl overflow-hidden">
                 <button onClick={() => setExpandedIdx(expandedIdx === i ? null : i)}
                   className="w-full flex items-center justify-between p-5 text-left hover:bg-surface-800/20 transition-colors">
@@ -194,7 +194,7 @@ export default function QueriesPage() {
                     {pr.error ? (
                       <p className="text-red-400 text-sm">{pr.error}</p>
                     ) : (
-                      <p className="text-surface-300 text-sm leading-relaxed whitespace-pre-wrap line-clamp-[12]">{pr.content}</p>
+                      <p className="text-surface-300 text-sm leading-relaxed whitespace-pre-wrap line-clamp-12">{pr.content}</p>
                     )}
                     {pr.brandAnalysis.excerpts.length > 0 && (
                       <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
@@ -230,6 +230,6 @@ export default function QueriesPage() {
   );
 }
 
-function Cpu(props: React.SVGProps<SVGSVGElement> & { className?: string }) {
+function CpuIcon(props: React.SVGProps<SVGSVGElement> & { className?: string }) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" {...props}><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/></svg>;
 }

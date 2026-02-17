@@ -54,7 +54,8 @@ export default function AnalyticsPage() {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-8 animate-fade-in">
+    // max-w-[1400px] -> max-w-350
+    <div className="max-w-350 mx-auto space-y-8 animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold text-white tracking-tight">Analytics</h1>
         <p className="text-surface-400 text-sm mt-1">
@@ -69,7 +70,8 @@ export default function AnalyticsPage() {
             <Globe className="w-5 h-5 text-brand-400" />
             <h3 className="text-lg font-semibold text-white">Confronto Provider</h3>
           </div>
-          <div className="h-[280px]">
+          {/* h-[280px] -> h-70 */}
+          <div className="h-70">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={providerData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
@@ -105,7 +107,8 @@ export default function AnalyticsPage() {
             <PieIcon className="w-5 h-5 text-brand-400" />
             <h3 className="text-lg font-semibold text-white">Distribuzione Sentiment</h3>
           </div>
-          <div className="h-[280px]">
+          {/* h-[280px] -> h-70 */}
+          <div className="h-70">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -165,7 +168,8 @@ export default function AnalyticsPage() {
               <div className="flex items-center gap-3">
                 <div className="w-32 h-2 bg-surface-800 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-brand-600 to-brand-400 rounded-full transition-all"
+                    // bg-gradient-to-r -> bg-linear-to-r
+                    className="h-full bg-linear-to-r from-brand-600 to-brand-400 rounded-full transition-all"
                     style={{ width: `${(q.mentions / topQueriesData[0].mentions) * 100}%` }}
                   />
                 </div>

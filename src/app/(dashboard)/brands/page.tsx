@@ -11,7 +11,13 @@ export default function BrandsPage() {
   const { brands, addBrand, deleteBrand, setActiveBrand } = useBrandStore();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<BrandInput>({
-    name: '', domain: '', industry: 'saas', market: 'both', competitors: [], keywords: [], description: '',
+    name: '', 
+    domain: '', 
+    industry: 'saas', 
+    market: 'both', 
+    competitors: [], 
+    keywords: [], 
+    description: '',
   });
   const [competitorInput, setCompetitorInput] = useState('');
   const [keywordInput, setKeywordInput] = useState('');
@@ -19,7 +25,15 @@ export default function BrandsPage() {
   const handleSubmit = () => {
     if (!form.name.trim()) return;
     addBrand(form);
-    setForm({ name: '', domain: '', industry: 'saas', market: 'both', competitors: [], keywords: [], description: '' });
+    setForm({ 
+      name: '', 
+      domain: '', 
+      industry: 'saas', 
+      market: 'both', 
+      competitors: [], 
+      keywords: [], 
+      description: '' 
+    });
     setShowForm(false);
   };
 
@@ -36,7 +50,8 @@ export default function BrandsPage() {
   };
 
   return (
-    <div className="max-w-[1000px] mx-auto space-y-6 animate-fade-in">
+    // max-w-[1000px] aggiornato in max-w-250 per Tailwind v4
+    <div className="max-w-250 mx-auto space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Brands</h1>

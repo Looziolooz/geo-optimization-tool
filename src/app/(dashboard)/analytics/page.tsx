@@ -2,15 +2,27 @@
 
 import { useMemo } from 'react';
 import { useBrandStore } from '@/lib/store/brand-store';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer, 
+  PieChart, 
+  Pie, 
+  Cell, 
+  Legend 
+} from 'recharts';
 import { BarChart3, PieChart as PieIcon, TrendingUp, Search } from 'lucide-react';
-import { AI_PROVIDERS, AIProviderName } from '@/lib/types';
+import { AI_PROVIDERS, ProviderQueryResult } from '@/lib/types';
 import ScoreRing from '@/components/ui/ScoreRing';
 import Link from 'next/link';
 import { cn, scoreColor } from '@/lib/utils';
 
 export default function AnalyticsPage() {
-  const { activeBrand, getQueryHistory, brands } = useBrandStore();
+  const { activeBrand, getQueryHistory } = useBrandStore();
   const history = activeBrand ? getQueryHistory(activeBrand.id) : [];
 
   const providerData = useMemo(() => {
@@ -23,7 +35,11 @@ export default function AnalyticsPage() {
         if (pr.brandAnalysis.mentioned) map[label].mentions++;
       }
     }
-    return Object.entries(map).map(([provider, d]) => ({ provider, ...d, rate: d.total > 0 ? Math.round((d.mentions / d.total) * 100) : 0 }));
+    return Object.entries(map).map(([provider, d]) => ({ 
+      provider, 
+      ...d, 
+      rate: d.total > 0 ? Math.round((d.mentions / d.total) * 100) : 0 
+    }));
   }, [history]);
 
   const sentimentData = useMemo(() => {
@@ -64,7 +80,7 @@ export default function AnalyticsPage() {
 
   if (!activeBrand) {
     return (
-      <div className="max-w-[500px] mx-auto text-center py-24 animate-fade-in">
+      <div className="max-w-125 mx-auto text-center py-24 animate-fade-in">
         <BarChart3 className="w-12 h-12 text-surface-600 mx-auto mb-4" />
         <h2 className="text-xl font-bold text-white mb-2">Select a brand</h2>
         <p className="text-surface-400 text-sm">Use the sidebar to select a brand, then run queries to see analytics.</p>
@@ -74,7 +90,7 @@ export default function AnalyticsPage() {
 
   if (history.length === 0) {
     return (
-      <div className="max-w-[500px] mx-auto text-center py-24 animate-fade-in">
+      <div className="max-w-125 mx-auto text-center py-24 animate-fade-in">
         <Search className="w-12 h-12 text-surface-600 mx-auto mb-4" />
         <h2 className="text-xl font-bold text-white mb-2">No data yet for {activeBrand.name}</h2>
         <p className="text-surface-400 text-sm mb-6">Run some AI queries first to see analytics.</p>
@@ -84,7 +100,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-8 animate-fade-in">
+    <div className="max-w-350 mx-auto space-y-8 animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold text-white">Analytics — {activeBrand.name}</h1>
         <p className="text-surface-400 text-sm mt-1">{history.length} queries analyzed</p>
@@ -99,7 +115,7 @@ export default function AnalyticsPage() {
           </div>
           {providerData.length > 0 ? (
             <>
-              <div className="h-[240px]">
+              <div className="h-60">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={providerData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
@@ -134,7 +150,7 @@ export default function AnalyticsPage() {
             <PieIcon className="w-5 h-5 text-brand-400" />
             <h3 className="text-white font-semibold">Sentiment Distribution</h3>
           </div>
-          <div className="h-[240px]">
+          <div className="h-60">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={sentimentData} cx="50%" cy="50%" innerRadius={60} outerRadius={95} paddingAngle={4} dataKey="value">
@@ -147,7 +163,10 @@ export default function AnalyticsPage() {
           </div>
           <div className="mt-2 grid grid-cols-3 gap-4 text-center">
             {sentimentData.map((s) => (
-              <div key={s.name}><p className="text-2xl font-bold text-white">{s.value}</p><p className="text-surface-500 text-xs">{s.name}</p></div>
+              <div key={s.name}>
+                <p className="text-2xl font-bold text-white">{s.value}</p>
+                <p className="text-surface-500 text-xs">{s.name}</p>
+              </div>
             ))}
           </div>
         </div>
